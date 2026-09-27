@@ -35,7 +35,7 @@ Iterationごとに，モデル化する範囲を広げる．
 
 - 不変条件は`inv`で始める(例：`invNoOversell`)．
 - 時相論理の性質は`live`で始める(例：`livePaidOrderSettles`)．
-- `requirements.md`の決定事項は，行末に`(性質: invNoOversell)`の形で性質名を書く．
+- `requirements.md`の決定事項は，行末に`(性質：invNoOversell)`の形で性質名を書く．
 - 照合スクリプトは，次の2つが過不足なく一致することを確かめる．
   - `shop.qnt`で，`inv`または`live`で始まる定義．
   - `requirements.md`が参照する性質名．
@@ -75,7 +75,7 @@ Iterationごとに，モデル化する範囲を広げる．
 
 `exercise/docs/iteration-N.md`は，次の順に進める．`solution/docs/iteration-N.md`は，同じ見出しで解説を書く．
 
-1. 準備(N-1)：`exercise/`で`mise run check:exercise N`を実行し，前のIterationの仕様が検査を通ることを確かめる．
+1. 準備(N-1)：`mise run verify`で`exercise/`を検査し，前のIterationの仕様が検査を通ることを確かめる．
 2. 基礎知識と構文(N-2)：`docs/concepts/`の該当する概念と，`docs/quint/iteration-N.md`を読み，REPLで小さな課題を解く．
 3. シナリオのテスト(N-3)：要求文の例を`shop_test.qnt`のテストにし，通るまで仕様を書く．
 4. 性質(N-4)：要求文から性質を読み取り，`shop.qnt`に書く．
@@ -91,6 +91,7 @@ Iterationごとに，モデル化する範囲を広げる．
 | 項目 | 内容 |
 | --- | --- |
 | Node，pnpm，Java | `mise.toml`で固定する．JavaはApalacheとTLCが使う |
+| 検査のスクリプト | `tools/`にTypeScriptで書き，Nodeで直接実行する |
 | Quint | `package.json`で`@informalsystems/quint`を0.32.0に固定する |
 | Quintの評価器 | `Dockerfile`で`v0.6.0`を取得し，`/opt/quint`に置く |
 | Apalache | `Dockerfile`で`0.56.1`を取得し，`/opt/quint`に置く |
@@ -126,23 +127,22 @@ iterations/iteration-N/
 
 | コマンド | 内容 |
 | --- | --- |
-| `mise run check` | すべての検査をまとめて実行する．CIでも同じものを実行する |
-| `mise run check:iteration N` | Iteration Nの`solution/`だけを検査する |
-| `mise run check:exercise N` | Iteration Nの`exercise/`を検査する(受講者が使う) |
-| `mise run diagram N` | Iteration Nの`solution/`の状態遷移図を生成し直す |
+| `mise run check` | リントとすべての仕様の検査をまとめて実行する．CIでも同じものを実行する |
+| `mise run verify <dir>` | 指定したディレクトリの仕様だけを検査する．受講者は`exercise/`に対して使う |
+| `mise run diagram <dir>` | 指定したディレクトリの状態遷移図を生成し直す |
 
-`mise run check`は，すべての`solution/`について次を実行する．
+仕様の検査(`tools/check.ts`)は，はじめに`QUINT_HOME`の評価器とApalacheを確かめ，続けて各ディレクトリで次を実行する．
 
-1. Quintの版と，`QUINT_HOME`の評価器・Apalacheの版が一致するかを確かめる．
-2. `quint typecheck`，`quint test`．
-3. 性質名の照合．
-4. `quint verify`(不変条件と時相論理の性質)．
-5. 状態遷移図を生成し直し，コミット済みの図との差分がないかを確かめる．
-6. Iteration 7では，`pnpm vitest`．
-7. Markdownのリントと，Mermaidの構文の検査．
+1. `quint typecheck`，`quint test`．
+2. 性質名の照合．
+3. `quint verify`(不変条件と時相論理の性質)．
+4. 状態遷移図を生成し直し，コミット済みの図との差分がないかを確かめる．
+
+リント(`pnpm lint`)は，textlint，markdownlint，Mermaidの構文の検査，`tsc --noEmit`を実行する．
+Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 
 `exercise/`は，前のIterationの`solution/`と同じ仕様に，新しい要求を加えたものである．
-`mise run check`は，`exercise/`について`quint typecheck`と`quint test`だけを実行する．
+新しい要求は性質名を参照しないので，`exercise/`も初めから検査を通る．
 
 ### 受講者のツール操作
 

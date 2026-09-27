@@ -55,7 +55,8 @@ Iterationごとに，モデル化する範囲を広げる．
 各Iterationで必要になる形式手法の基礎知識を，`docs/concepts/`にリファレンスとして置く．
 
 - 1ファイルに1つの概念を書く．Quintの構文には依存させず，題材とも別の小さな例で説明する．
-- 各ファイルは「一言でいうと」で始め，「なぜ必要か」「テストとの違い」「よくある誤解」を含め，「Quintでの書き方」(構文の解説への参照)で終える．間には，概念に合わせて例や構成要素の節を置く．
+- 各ファイルは「一言でいうと」で始め，「なぜ必要か」「テストとの違い」「よくある誤解」を含め，「Quintでの書き方」(構文の解説への参照)で終える．
+  間には，概念に合わせて例や構成要素の節を置く．
 - `docs/concepts/README.md`に，Iterationごとに読む概念の一覧を置く．
 - 概念のファイルは，それを初めて使うIterationを作るときに書く．
 - Quintの構文とコマンドは，`docs/quint/iteration-N.md`に分けて書く．概念の説明と構文の説明を混ぜない．
@@ -152,7 +153,7 @@ Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 | 1 | `quint run`の`--max-samples` |
 | 2 | `--invariants`で複数の不変条件をまとめて検査する |
 | 4 | `quint verify --backend=tlc`，`--temporal` |
-| 6 | 定数を変えたモジュールを用意し，`quint verify`の時間を比べる |
+| 6 | 定数を変えた仕様の写しを作り，`quint verify --backend=tlc`で状態の数と時間を比べる |
 | 7 | `quint run --mbt --out-itf`，`pnpm add -D vitest`，`pnpm vitest` |
 
 ## Iteration 0の課題の形
@@ -186,19 +187,36 @@ Iteration 5では，2段階で反例が出る．
 
 ## 落とし穴
 
-- Quintは，評価器をGitHub APIのリリース一覧から探してダウンロードする．APIが使えない環境では失敗するので，`Dockerfile`で`QUINT_HOME`(`/opt/quint`)に置いておく．
+- Quintは，評価器をGitHub APIのリリース一覧から探してダウンロードする．
+  APIが使えない環境では失敗するので，`Dockerfile`で`QUINT_HOME`(`/opt/quint`)に置いておく．
   評価器とApalacheの版は，Quint本体に埋め込まれた版(`QUINT_EVALUATOR_VERSION`，`DEFAULT_APALACHE_VERSION_TAG`)と一致させる．Quintの版を上げるときは，`Dockerfile`の版も上げる．
 - 動けるアクションがなくなると，`quint run`のトレースはそこで終わる．
   `quint verify`(Apalache)は，この状態をデッドロックとして違反にする．
   受講者がApalacheを直接使うときは，`tools/apalache.json`でデッドロックの検査を切る．
   検査のスクリプトはTLCを使う．QuintはTLCを`-deadlock`付きで呼ぶので，デッドロックは違反にならない．
-- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．教材で受講者に不変条件の反例を読ませるときは，Apalacheで出す．
+- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．
+  教材で受講者に不変条件の反例を読ませるときは，Apalacheで出す．
 - Apalacheの不変条件の検査は，Iteration 5の仕様で約5分かかった．検査のスクリプトは，不変条件もTLCで検査する．
-- Apalacheで時相論理の性質を検査すると，Iteration 4の仕様でも10分以上かかった．時相論理の性質はTLCで検査する．TLCは状態の数が有限でなければ終わらないので，再試行などの回数には上限を設ける．
-- `weakFair(step, vars)`のように`step`全体に公平性を仮定すると，特定のアクションが起きることは保証されない．公平性は，起きてほしいアクションごとに仮定する．
+- Apalacheで時相論理の性質を検査すると，Iteration 4の仕様でも10分以上かかった．
+  時相論理の性質はTLCで検査する．
+  TLCは状態の数が有限でなければ終わらないので，再試行などの回数には上限を設ける．
+- `weakFair(step, vars)`のように`step`全体に公平性を仮定すると，特定のアクションが起きることは保証されない．
+  公平性は，起きてほしいアクションごとに仮定する．
 - `quint run --out-itf`の出力先のディレクトリは，先に作っておく．
-- pnpm 12は，公開から間もない版をロックファイルに入れることを拒む(`minimumReleaseAge`)．依存パッケージの追加には，`mise.toml`で固定したpnpmを使う．
-- pnpm 12は，インストール時スクリプトの可否が決まっていない依存パッケージがあると，インストールを失敗にする．可否は`pnpm-workspace.yaml`の`allowBuilds`に書く．
-- `quint run`は，`--seed`を指定すると`--max-samples`の既定値が1になる．教材に載せる出力は，`--seed`と`--max-samples`を両方指定して取る．
-- REPLに標準入力から式を流すときは，入力の後に数秒待ってから`.exit`を送る．すぐに入力が閉じると，評価器が`readline was closed`で止まる．
+- pnpm 12は，公開から間もない版をロックファイルに入れることを拒む(`minimumReleaseAge`)．
+  依存パッケージの追加には，`mise.toml`で固定したpnpmを使う．
+- pnpm 12は，インストール時スクリプトの可否が決まっていない依存パッケージがあると，インストールを失敗にする．
+  可否は`pnpm-workspace.yaml`の`allowBuilds`に書く．
+- `quint run`は，`--seed`を指定すると`--max-samples`の既定値が1になる．
+  教材に載せる出力は，`--seed`と`--max-samples`を両方指定して取る．
+- REPLに標準入力から式を流すときは，入力の後に数秒待ってから`.exit`を送る．
+  すぐに入力が閉じると，評価器が`readline was closed`で止まる．
+- `item`はQuintの組み込みの名前で，引数や`nondet`の名前にも使えない．商品を表す名前には`product`を使う．
+- TLCで検査するとき，`forall`の中の`fold`に条件式を直接書くと，TLA+への変換で誤りになった．
+  誤りのメッセージは`Cannot cast tlc2.value.impl.BoolValue to tlc2.value.impl.IntValue`である．
+  式を名前付きの`def`に分けると避けられる．
+- 状態遷移図は，ランダムシミュレーションで遷移を集めるので，遷移を取りこぼすことがある．
+  Iteration 6では，20ステップでは`CancelRequested --> Cancelled`を取りこぼした．
+  図の生成では40ステップまで調べる．
+  新しいIterationを作ったら，図の遷移が仕様のアクションと合っているかを確かめる．
 - MermaidのC4図は，矢印の配置を細かく指定できない．矢印が重なって読みにくいときは，要素の宣言の順番を入れ替える．

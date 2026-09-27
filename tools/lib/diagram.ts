@@ -8,7 +8,7 @@ const STATUS_VAR = "orderStatus";
 
 // トレースの本数と長さ．遷移を取りこぼさないよう，十分に大きく取る．
 const SAMPLES = 300;
-const MAX_STEPS = 20;
+const MAX_STEPS = 40;
 const SEED = "1";
 
 const HEADER = `# 状態遷移図

@@ -1,54 +1,62 @@
-# claude-docker-template
+# Quintで仕様の穴を見つけるハンズオン
 
-Claude Code for VSCode + Docker(mise) + rtkで開発するときの，最小構成のテンプレート．
-言語や作るものは特に決めず，devcontainer・mise・rtk・lefthookの土台だけを提供する．
+ECショップの注文処理を題材に，要求文をQuintの仕様にしてモデル検査する連続講座．
+要求文の例どおりのテストは通るのに，モデル検査は要求の抜けを反例として示す．
+受講者は，反例から抜けを読み取り，システムの振る舞いを決め，要求文と仕様に反映する．
+最後のIterationでは，仕様から出したトレースでTypeScriptの実装を検査する．
 
-## 構成
+## 対象と到達点
 
-``` text
-.devcontainer/
-  devcontainer.json  VSCode Dev Containersの設定．claude-home/rtk-homeを
-                      ホストにバインドマウントし，資格情報や履歴をコンテナの
-                      再作成後も保つ．
-  Dockerfile          mise公式イメージをベースに，rtk/lefthookをmiseで入れる．
-                      プロジェクト固有のパッケージ・ツールチェーンはここに追加する．
-  compose.yml         コンテナを起動したままにする(sleep infinity)だけの設定．
-.claude/
-  settings.json        Bashツール呼び出しをrtk経由に書き換えるフック．
-                        enunun/system-development-skillsを参照するプラグイン設定も含む．
-.rtk/
-  filters.toml          プロジェクト固有のrtkフィルタ(雛形のみ)．
-mise.toml               ツールの版とタスク(install/fmt/lint/test/check/setup)の雛形．
-lefthook.yml             コミット時の検査の雛形．
-CLAUDE.md                プロジェクト向けのClaude Code指示の雛形．
-.gitignore
-```
+普段のプログラミングと単体テストができる開発者を対象にする．
+形式手法の知識は前提にしない．必要な基礎知識は，Iterationごとにリファレンスとして用意してある．
 
-## 使い方
+講座を終えると，次のことができるようになる．
 
-1. このフォルダの中身を，新しいプロジェクトのリポジトリのルートにコピーする．
-2. `PROJECT_NAME`という文字列を，プロジェクト名に置き換える(`devcontainer.json`，`compose.yml`，`CLAUDE.md`)．
-3. `mise.toml`の`[tools]`に，プロジェクトが使う言語・ツールを追加する．
-4. `mise.toml`の各タスク(`install`/`fmt`/`lint`/`test`)と，`lefthook.yml`の`format`コマンドを，実際のコマンドに置き換える．
-5. `Dockerfile`に，プロジェクトのビルドに必要なシステムパッケージがあれば追加する．
-6. VSCodeで「Reopen in Container」を実行する．初回は`mise run setup`が走る．
-7. `.gitignore`から`pnpm-lock.yaml`を削除し，lockファイルがコミットされるようにする．
-8. `mise.toml`の`[settings]`と`lockfile = true`の行のコメントを解除し，lockファイルを使用するようにする．
+- 要求文をQuintの仕様と性質にし，モデル検査で要求の抜けを見つける．
+- 反例の状況でシステムがどう振る舞うべきかを決め，要求文と仕様に反映する．
+- 仕様から出したトレースで，実装が仕様どおりに動くかを確かめる．
 
-## rtk(Rust Token Killer)について
+## 環境の準備
 
-シェルコマンドの出力を絞り込み，トークン消費を抑えるCLIプロキシ．
-`.claude/settings.json`のフックが，Claude CodeのBashツール呼び出しを自動的に`rtk`経由に書き換える．
-コマンドの詳しい対応表は[rtkのリポジトリ](https://github.com/rtk-ai/rtk)を参照．
-`~/.claude/CLAUDE.md`からrtkの使い方を読み込ませておくと，全プロジェクトで効く．
+VS CodeとDockerを使う．
 
-## 共有スキルについて
+1. このリポジトリをクローンし，VS Codeで開く．
+2. コマンドパレットで「Dev Containers: Reopen in Container」を実行する．
+   初回は，イメージのビルドと`mise run setup`(依存パッケージとGitのフックの設定)が走る．
+3. コンテナの端末で`mise run check`を実行し，すべての検査が通ることを確かめる．
 
-`.claude/settings.json`は，[enunun/system-development-skills](https://github.com/enunun/system-development-skills)をプラグインのマーケットプレイスとして参照する設定を含む．成果物を仕上げる`finalize-artifacts`スキルなど，プロジェクトを問わず使うスキルはそちらに集約されている．
+コンテナには，Node，pnpm，Java，Quint，Quintの評価器，Apalacheが入っている．
 
-## claude-home / rtk-home について
+## 教材
 
-`.devcontainer/claude-home/`と`.devcontainer/rtk-home/`は，コンテナ作成時に
-`initializeCommand`が自動生成し，
-コンテナ内の`/root/.claude`や`/root/.config/rtk`などにバインドマウントされる．
-資格情報や履歴を含むため，`.gitignore`で除外している．
+| 文書 | 内容 |
+| --- | --- |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | 題材のシステム構成と，各Iterationで作るもの・学ぶこと |
+| [docs/method.md](docs/method.md) | 要求文→テスト→性質→反例→決定→反映の進め方と，各ファイルの書き方 |
+| [docs/concepts/README.md](docs/concepts/README.md) | 形式手法の基礎知識(Iterationごとに読むもの) |
+| [docs/quint/README.md](docs/quint/README.md) | Quintの構文とコマンド(Iterationごとの解説) |
+
+各Iterationの課題は`iterations/iteration-N/exercise/`，模範解答は`iterations/iteration-N/solution/`にある．
+課題のディレクトリの`README.md`から始める．
+
+## Iterationの一覧
+
+| # | 追加する機能 | 学ぶこと |
+| --- | --- | --- |
+| 0 | 注文と在庫の引当 | 状態・アクション・不変条件，反例の読み方 |
+| 1 | 複数の顧客が同時に注文する | 非決定的な選択，割り込み |
+| 2 | 決済と時間切れ | 外部システムのモデル化，非同期の通知 |
+| 3 | 決済の再試行と通知の重複 | メッセージの重複・遅延，冪等性 |
+| 4 | 注文が必ず決着する | 活性，公平性，網羅的な検査 |
+| 5 | キャンセルと出荷 | システム間の結果整合性，補償処理 |
+| 6 | 複数商品の注文 | 抽象化，状態爆発，定数の選び方 |
+| 7 | 仕様から実装のテストを作る | モデルベーステスト，CIへの組み込み |
+
+## コマンド
+
+| コマンド | 内容 |
+| --- | --- |
+| `mise run verify <dir>` | 指定したディレクトリの仕様を検査する |
+| `mise run diagram <dir>` | 仕様のトレースから，状態遷移図を生成し直す |
+| `mise run check` | リントと，すべてのIterationの仕様の検査をまとめて実行する |
+| `mise run fmt` | 文書の自動で直せる指摘を直す |

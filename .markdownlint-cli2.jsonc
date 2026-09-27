@@ -3,8 +3,8 @@
 		"default": true,
 		// 要求と決定事項の両方に，同じIterationの小見出しを置く．
 		"MD024": { "siblings_only": true },
-		// コードブロックには，実際のコマンドや出力を折り返さずに載せる．
-		"MD013": { "code_blocks": false }
+		// コードブロックには実際のコマンドや出力を，表には長い説明を，折り返さずに載せる．
+		"MD013": { "code_blocks": false, "tables": false }
 	},
 	"globs": [
 		"**/*.md"

@@ -148,9 +148,9 @@ Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 
 | Iteration | 初めて行う操作 |
 | --- | --- |
-| 0 | `mise run check`，`quint typecheck`，`quint run`，`quint test` |
+| 0 | `mise run verify`，`mise run diagram`，`quint typecheck`，`quint run`，`quint test`，`quint verify`，REPL |
 | 1 | `quint run`の`--max-samples` |
-| 2 | `quint`のREPL |
+| 2 | `--invariants`で複数の不変条件をまとめて検査する |
 | 4 | `quint verify`，`--temporal` |
 | 6 | 定数を変えたモジュールを用意し，`quint verify`の時間を比べる |
 | 7 | `quint run --mbt --out-itf`，`pnpm add -D vitest`，`pnpm vitest` |

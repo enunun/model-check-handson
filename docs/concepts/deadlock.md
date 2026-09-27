@@ -23,9 +23,10 @@
 
 ## このハンズオンでの扱い
 
-`quint verify`は，遷移できない状態をデッドロックとして違反にする．
+`quint verify`(Apalache)は，遷移できない状態をデッドロックとして違反にする．
 このハンズオンの仕様では，すべての注文が決着した状態は正常な終わりである．
-そこで，`mise run verify`はデッドロックの検査を切って`quint verify`を呼ぶ(`tools/apalache.json`)．
+そこで，`quint verify`を直接使うときは，`tools/apalache.json`でデッドロックの検査を切る．
+`mise run verify`はTLC(`--backend=tlc`)で検査する．QuintはTLCを呼ぶときにデッドロックの検査を切るので，指定は要らない．
 
 処理の途中で止まってしまう問題は，デッドロックの検査ではなく，Iteration 4で扱う活性の性質で調べる．
 活性の性質では，「途中の状態の注文は，いずれ最終的な状態になる」ことを直接書く．

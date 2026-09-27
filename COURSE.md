@@ -135,7 +135,7 @@ iterations/iteration-N/
 
 1. `quint typecheck`，`quint test`．
 2. 性質名の照合．
-3. `quint verify`．不変条件はApalacheで，時相論理の性質はTLC(`--backend=tlc`)で検査する．時相論理の性質がないときは，TLCの検査を表示しない．
+3. `quint verify`．不変条件と時相論理の性質を，TLC(`--backend=tlc`)で検査する．時相論理の性質がないときは，その検査を表示しない．
 4. 状態遷移図を生成し直し，コミット済みの図との差分がないかを確かめる．
 
 リント(`pnpm lint`)は，textlint，markdownlint，Mermaidの構文の検査，`tsc --noEmit`を実行する．
@@ -190,8 +190,10 @@ Iteration 5では，2段階で反例が出る．
   評価器とApalacheの版は，Quint本体に埋め込まれた版(`QUINT_EVALUATOR_VERSION`，`DEFAULT_APALACHE_VERSION_TAG`)と一致させる．Quintの版を上げるときは，`Dockerfile`の版も上げる．
 - 動けるアクションがなくなると，`quint run`のトレースはそこで終わる．
   `quint verify`(Apalache)は，この状態をデッドロックとして違反にする．
-  検査のスクリプトは，`tools/apalache.json`でデッドロックの検査を切ってApalacheを呼ぶ．
-- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．不変条件の反例はApalacheで出す．
+  受講者がApalacheを直接使うときは，`tools/apalache.json`でデッドロックの検査を切る．
+  検査のスクリプトはTLCを使う．QuintはTLCを`-deadlock`付きで呼ぶので，デッドロックは違反にならない．
+- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．教材で受講者に不変条件の反例を読ませるときは，Apalacheで出す．
+- Apalacheの不変条件の検査は，Iteration 5の仕様で約5分かかった．検査のスクリプトは，不変条件もTLCで検査する．
 - Apalacheで時相論理の性質を検査すると，Iteration 4の仕様でも10分以上かかった．時相論理の性質はTLCで検査する．TLCは状態の数が有限でなければ終わらないので，再試行などの回数には上限を設ける．
 - `weakFair(step, vars)`のように`step`全体に公平性を仮定すると，特定のアクションが起きることは保証されない．公平性は，起きてほしいアクションごとに仮定する．
 - `quint run --out-itf`の出力先のディレクトリは，先に作っておく．

@@ -115,7 +115,7 @@ error: reached a deadlock
 
 最後の状態では，どちらの注文も最終的な状態になっている．
 これは正常な終わりなので，`--apalache-config`でデッドロックの検査を切る．
-`mise run verify`は，この指定を自動で行う．
+`mise run verify`はTLCで検査し，デッドロックを誤りとして扱わない．
 
 ```text
 $ quint verify shop.qnt --invariants invStockNonNegative --apalache-config=../../../tools/apalache.json

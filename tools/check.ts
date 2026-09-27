@@ -51,16 +51,15 @@ function steps(dir: string): Step[] {
     { name: "quint test", run: () => quint(["test", "shop_test.qnt"], dir) },
     { name: "性質名の照合", run: () => compareProperties(dir) },
     {
-      // 不変条件は，反例をQuintの記法で示すApalacheで検査する．
-      // すべての注文が決まり，動けるアクションがなくなった状態は誤りとして扱わない．
+      // 不変条件は，すべての状態を調べるTLCで検査する．Apalacheより速い．
+      // QuintはTLCを呼ぶときにデッドロックの検査を切るので，すべての注文が決まった状態は誤りにならない．
       name: "quint verify",
       run: () => {
         const { invariants } = specProperties(dir);
         if (invariants.length === 0) {
           return [];
         }
-        const config = `--apalache-config=${path.join(repoRoot, "tools/apalache.json")}`;
-        return quint(["verify", "shop.qnt", config, "--invariants", ...invariants], dir);
+        return quint(["verify", "shop.qnt", "--backend=tlc", "--invariants", ...invariants], dir);
       },
     },
     {

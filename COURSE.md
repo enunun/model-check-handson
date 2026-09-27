@@ -188,7 +188,12 @@ Iteration 5では，2段階で反例が出る．
 
 - Quintは，評価器をGitHub APIのリリース一覧から探してダウンロードする．APIが使えない環境では失敗するので，`Dockerfile`で`QUINT_HOME`(`/opt/quint`)に置いておく．
   評価器とApalacheの版は，Quint本体に埋め込まれた版(`QUINT_EVALUATOR_VERSION`，`DEFAULT_APALACHE_VERSION_TAG`)と一致させる．Quintの版を上げるときは，`Dockerfile`の版も上げる．
-- 動けるアクションがなくなると，`quint run`のトレースはそこで終わる．完了した注文がその状態に留まるアクションを用意する．
+- 動けるアクションがなくなると，`quint run`のトレースはそこで終わる．
+  `quint verify`(Apalache)は，この状態をデッドロックとして違反にする．
+  検査のスクリプトは，`tools/apalache.json`でデッドロックの検査を切ってApalacheを呼ぶ．
+- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．受講者に見せる反例はApalacheで出す．
 - `quint run --out-itf`の出力先のディレクトリは，先に作っておく．
+- pnpm 12は，公開から間もない版をロックファイルに入れることを拒む(`minimumReleaseAge`)．依存パッケージの追加には，`mise.toml`で固定したpnpmを使う．
+- pnpm 12は，インストール時スクリプトの可否が決まっていない依存パッケージがあると，インストールを失敗にする．可否は`pnpm-workspace.yaml`の`allowBuilds`に書く．
 - 教材に載せる`quint run`の出力は，`--seed`と`--max-samples`を指定して再現できるようにする．
 - MermaidのC4図は，矢印の配置を細かく指定できない．矢印が重なって読みにくいときは，要素の宣言の順番を入れ替える．

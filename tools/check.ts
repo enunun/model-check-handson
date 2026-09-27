@@ -53,7 +53,8 @@ function steps(dir: string): Step[] {
         if (invariants.length === 0 && temporals.length === 0) {
           return [];
         }
-        const args = ["verify", "shop.qnt"];
+        // すべての注文が決まり，動けるアクションがなくなった状態は誤りとして扱わない．
+        const args = ["verify", "shop.qnt", `--apalache-config=${path.join(repoRoot, "tools/apalache.json")}`];
         if (invariants.length > 0) args.push("--invariants", ...invariants);
         if (temporals.length > 0) args.push(`--temporal=${temporals.join(",")}`);
         return quint(args, dir);

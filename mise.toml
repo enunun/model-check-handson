@@ -10,6 +10,10 @@ java = "temurin-21"
 [settings]
 lockfile = true
 
+[env]
+# リポジトリに固定したQuintを，quintコマンドとして使えるようにする．
+_.path = ["{{config_root}}/node_modules/.bin"]
+
 [tasks.install]
 description = "依存パッケージをインストールする"
 run = "pnpm install --frozen-lockfile"

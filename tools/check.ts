@@ -67,7 +67,7 @@ function steps(dir: string): Step[] {
         const committed = existsSync(file) ? readFileSync(file, "utf8") : "";
         return committed === renderDiagram(dir)
           ? []
-          : [`${file}が仕様と一致しない．mise run diagram ${path.relative(repoRoot, dir)}で生成し直す．`];
+          : [`${path.relative(repoRoot, file)}が仕様と一致しない．mise run diagram ${path.relative(repoRoot, dir)}で生成し直す．`];
       },
     },
   ];

@@ -73,36 +73,29 @@ mise run check
 | 性質名の照合 | 要求文が参照する性質名と，`shop.qnt`の性質が一致するか |
 | `pnpm vitest` | Quintのトレースを流したとき，TypeScriptの実装が仕様どおりに動くか |
 
-Iteration 1で受講者が出会う反例の例を示す．
-シナリオのテストは通るが，`quint run`は在庫が-1になる実行を見つける．
+Iteration 0で受講者が出会う反例の例を示す．
+要求文の例をテストにした`quint test`は通るが，`quint run`は在庫が-1になる実行を見つける．
 
 ```text
 $ quint test shop_test.qnt
 
   shop_test
-    ok sequentialOrdersTest passed 1 test(s)
+    ok placeOneOrderTest passed 1 test(s)
 
-  1 passing (13ms)
+  1 passing (18ms)
 
-$ quint run shop.qnt --invariant=noOversell \
-    --max-samples=1000 --max-steps=10 --seed=1
+$ quint run shop.qnt --invariant=invStockNonNegative --max-samples=1000 --seed=1
 An example execution:
 
-[State 0] { status: Map("alice" -> Idle, "bob" -> Idle), stock: 1 }
+[State 0] { orderStatus: Map("o1" -> NotPlaced, "o2" -> NotPlaced), stock: 1 }
 
-[State 1] { status: Map("alice" -> Idle, "bob" -> Checked), stock: 1 }
+[State 1] { orderStatus: Map("o1" -> Reserved, "o2" -> NotPlaced), stock: 0 }
 
-[State 2] { status: Map("alice" -> Idle, "bob" -> Checked), stock: 1 }
+[State 2] { orderStatus: Map("o1" -> Reserved, "o2" -> Reserved), stock: -1 }
 
-[State 3] { status: Map("alice" -> Checked, "bob" -> Checked), stock: 1 }
-
-[State 4] { status: Map("alice" -> Checked, "bob" -> Reserved), stock: 0 }
-
-[State 5] { status: Map("alice" -> Reserved, "bob" -> Reserved), stock: -1 }
-
-[violation] Found an issue (34ms at 59 traces/second).
+[violation] Found an issue (15ms at 67 traces/second).
 Use --verbosity=3 to show executions.
-Use --seed=0x34 --backend=rust to reproduce.
+Use --seed=0x1 --backend=rust to reproduce.
 error: Invariant violated
 ```
 
@@ -156,7 +149,7 @@ Iterationを始める前に，`docs/concepts/README.md`でそのIterationの概�
 | 項目 | 内容 |
 | --- | --- |
 | 仕様の変更 | 在庫数と注文の状態を変数にし，注文を受け付けるアクションを作る．性質「在庫は負にならない」を加える． |
-| 状態遷移図 | 注文の状態(未注文→引当済み)の図が初めて生成される． |
+| 状態遷移図 | 注文の状態(未注文，引当済み，お断り)の図が初めて生成される． |
 | 基礎知識 | 状態遷移系，不変条件，テスト・シミュレーション・モデル検査． |
 | 学ぶこと | `var`，`action`，`init`と`step`，不変条件，`quint`の各コマンド，反例の読み方． |
 | 既存テストへの影響 | なし(最初のIteration)． |

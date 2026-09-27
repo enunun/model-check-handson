@@ -6,6 +6,7 @@
 | Iteration | 概念 |
 | --- | --- |
 | 0 | [状態遷移系](state-transition-system.md)，[不変条件](invariant.md)，[テスト・シミュレーション・モデル検査](testing-and-model-checking.md) |
+| 1 | [非決定性](nondeterminism.md)，[インターリーブと原子性](interleaving-and-atomicity.md)，[デッドロック](deadlock.md) |
 
 各ファイルには，概念の要点，ECショップとは別の小さな例，テストとの違い，よくある誤解を書いてある．
 最後の「Quintでの書き方」から，その概念を書くための構文の解説に進める．

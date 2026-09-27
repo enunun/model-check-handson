@@ -175,6 +175,8 @@ error: found a counterexample
 ```markdown
 ## 決定事項
 
+### Iteration 0
+
 - 在庫が0個のときの注文は断る．在庫は負にならない．(性質：invStockNonNegative)
 ```
 

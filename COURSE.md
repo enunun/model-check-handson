@@ -49,6 +49,43 @@ Iterationごとに，モデル化する範囲を広げる．
 - 遷移の取りこぼしがないよう，トレース数とステップ数は各Iterationの仕様に合わせて十分に取る．
   Iterationを作るときに，`quint verify`で到達できる状態と図の状態が一致するかを確かめる．
 
+## 基礎知識のリファレンス
+
+受講者は，形式体系(状態遷移系，時相論理など)にも明るくないものとする．
+各Iterationで必要になる形式手法の基礎知識を，`docs/concepts/`にリファレンスとして置く．
+
+- 1ファイルに1つの概念を書く．Quintの構文には依存させず，題材とも別の小さな例で説明する．
+- 各ファイルは「一言でいうと」「例」「なぜ必要か」「テストとの違い」「よくある誤解」「Quintでの書き方(該当する構文の解説への参照)」の順に書く．
+- `docs/concepts/README.md`に，Iterationごとに読む概念の一覧を置く．
+- 概念のファイルは，それを初めて使うIterationを作るときに書く．
+- Quintの構文とコマンドは，`docs/quint/iteration-N.md`に分けて書く．概念の説明と構文の説明を混ぜない．
+
+| # | 読む概念(`docs/concepts/`) |
+| --- | --- |
+| 0 | 状態遷移系，不変条件，テスト・シミュレーション・モデル検査 |
+| 1 | 非決定性，インターリーブと原子性，デッドロック |
+| 2 | 環境のモデル化，非同期メッセージ，時間の抽象化 |
+| 3 | メッセージの配送保証，冪等性 |
+| 4 | 安全性と活性，時相論理，公平性，有界モデル検査と全状態探索 |
+| 5 | 結果整合性，補償処理 |
+| 6 | 抽象化，状態爆発と小スコープ仮説 |
+| 7 | モデルベーステスト，仕様と実装の対応(詳細化) |
+
+## Iterationの教材の構成
+
+`exercise/docs/iteration-N.md`は，次の順に進める．`solution/docs/iteration-N.md`は，同じ見出しで解説を書く．
+
+1. 準備(N-1)：`exercise/`で`mise run check:exercise N`を実行し，前のIterationの仕様が検査を通ることを確かめる．
+2. 基礎知識と構文(N-2)：`docs/concepts/`の該当する概念と，`docs/quint/iteration-N.md`を読み，REPLで小さな課題を解く．
+3. シナリオのテスト(N-3)：要求文の例を`shop_test.qnt`のテストにし，通るまで仕様を書く．
+4. 性質(N-4)：要求文から性質を読み取り，`shop.qnt`に書く．
+5. 検査と反例(N-5)：`quint run`と`quint verify`で検査し，反例の手順を読み取る．
+6. 決定と反映(N-6)：反例の状況での振る舞いを決め，`requirements.md`と`shop.qnt`に反映し，検査を通す．
+7. 振り返り(N-7)：模範解答の決定事項と比べ，テストだけでは反例が見つからなかった理由を考える．
+8. 発展課題(N-8)：同じ流れで，受講者が1人で進める小さな追加の要求．
+
+課題の手順には，要求文と進め方のヒントだけを書き，反例や決定事項は書かない．
+
 ## 開発環境
 
 | 項目 | 内容 |
@@ -68,15 +105,20 @@ COURSE.md                      コース計画(このファイル)
 README.md                      受講者向けの概要と環境の準備
 docs/ROADMAP.md                題材，C4図，各Iterationの要求と学ぶこと
 docs/method.md                 要求→テスト→性質→反例→決定→反映の進め方
+docs/concepts/README.md        基礎知識の目次(Iterationごとに読むもの)
+docs/concepts/<topic>.md       形式手法の基礎知識(1ファイル1概念)
+docs/quint/README.md           Quintの構文とコマンドの目次
 docs/quint/iteration-N.md      Iteration Nで初めて使う構文とコマンドの解説
 tools/                         状態遷移図の生成，性質名の照合(TypeScript)
 iterations/iteration-N/
   exercise/                    受講者が作業する場所
+    README.md                  このIterationで作るもの，進め方
+    docs/iteration-N.md        課題の手順
     requirements.md
     shop.qnt
     shop_test.qnt
     state-diagram.md
-  solution/                    同じ構成の模範解答
+  solution/                    同じ構成の模範解答(docs/iteration-N.md は解説)
     (Iteration 7のみ) impl/    TypeScriptの実装とトレースのテスト
 ```
 
@@ -86,6 +128,7 @@ iterations/iteration-N/
 | --- | --- |
 | `mise run check` | すべての検査をまとめて実行する．CIでも同じものを実行する |
 | `mise run check:iteration N` | Iteration Nの`solution/`だけを検査する |
+| `mise run check:exercise N` | Iteration Nの`exercise/`を検査する(受講者が使う) |
 | `mise run diagram N` | Iteration Nの`solution/`の状態遷移図を生成し直す |
 
 `mise run check`は，すべての`solution/`について次を実行する．
@@ -98,7 +141,8 @@ iterations/iteration-N/
 6. Iteration 7では，`pnpm vitest`．
 7. Markdownのリントと，Mermaidの構文の検査．
 
-`exercise/`は検査しない．`exercise/`は，前のIterationの`solution/`と同じ内容に，新しい要求を加えたものである．
+`exercise/`は，前のIterationの`solution/`と同じ仕様に，新しい要求を加えたものである．
+`mise run check`は，`exercise/`について`quint typecheck`と`quint test`だけを実行する．
 
 ### 受講者のツール操作
 

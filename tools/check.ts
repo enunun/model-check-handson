@@ -21,17 +21,21 @@ function allSpecDirs(): string[] {
     .flatMap((name) => ["exercise", "solution"].map((kind) => path.join(iterations, name, kind)));
 }
 
-type Step = { name: string; run: () => string[] };
+// runがnullを返した検査は，対象がないので表示しない．
+type Step = { name: string; run: () => string[] | null };
+
+// 反例の始まりを示す行．Apalacheとシミュレーションは前者，TLCは後者を出す．
+const COUNTEREXAMPLE_MARKERS = ["An example execution:", "Error: The following behavior constitutes a counter-example:"];
 
 // Quintのコマンドを実行し，失敗したら出力を問題として返す．
-// 反例があれば，Apalacheの経過のログを省き，反例から後だけを返す．
+// 反例があれば，経過のログを省き，反例から後だけを返す．
 function quint(args: string[], dir: string): string[] {
   const { status, output } = runQuint(args, dir);
   if (status === 0) {
     return [];
   }
-  const start = output.indexOf("An example execution:");
-  const shown = start >= 0 ? output.slice(start) : output;
+  const starts = COUNTEREXAMPLE_MARKERS.map((marker) => output.indexOf(marker)).filter((i) => i >= 0);
+  const shown = starts.length > 0 ? output.slice(Math.min(...starts)) : output;
   return [
     shown
       .split("\n")
@@ -47,17 +51,27 @@ function steps(dir: string): Step[] {
     { name: "quint test", run: () => quint(["test", "shop_test.qnt"], dir) },
     { name: "性質名の照合", run: () => compareProperties(dir) },
     {
+      // 不変条件は，反例をQuintの記法で示すApalacheで検査する．
+      // すべての注文が決まり，動けるアクションがなくなった状態は誤りとして扱わない．
       name: "quint verify",
       run: () => {
-        const { invariants, temporals } = specProperties(dir);
-        if (invariants.length === 0 && temporals.length === 0) {
+        const { invariants } = specProperties(dir);
+        if (invariants.length === 0) {
           return [];
         }
-        // すべての注文が決まり，動けるアクションがなくなった状態は誤りとして扱わない．
-        const args = ["verify", "shop.qnt", `--apalache-config=${path.join(repoRoot, "tools/apalache.json")}`];
-        if (invariants.length > 0) args.push("--invariants", ...invariants);
-        if (temporals.length > 0) args.push(`--temporal=${temporals.join(",")}`);
-        return quint(args, dir);
+        const config = `--apalache-config=${path.join(repoRoot, "tools/apalache.json")}`;
+        return quint(["verify", "shop.qnt", config, "--invariants", ...invariants], dir);
+      },
+    },
+    {
+      // 時相論理の性質は，すべての状態を調べるTLCで検査する．
+      name: "quint verify(時相論理の性質)",
+      run: () => {
+        const { temporals } = specProperties(dir);
+        if (temporals.length === 0) {
+          return null;
+        }
+        return quint(["verify", "shop.qnt", "--backend=tlc", `--temporal=${temporals.join(",")}`], dir);
       },
     },
     {
@@ -87,7 +101,10 @@ const dirs = process.argv.length > 2 ? process.argv.slice(2).map((d) => path.res
 for (const dir of dirs) {
   console.log(`\n${path.relative(repoRoot, dir)}`);
   for (const step of steps(dir)) {
-    report(step.name, step.run());
+    const problems = step.run();
+    if (problems !== null) {
+      report(step.name, problems);
+    }
   }
 }
 process.exit(failed ? 1 : 0);

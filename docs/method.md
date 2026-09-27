@@ -196,7 +196,8 @@ An example execution:
 1. `quint typecheck`：仕様とテストに，型の誤りがないか．
 2. `quint test`：シナリオのテストが通るか．
 3. 性質名の照合：要求文の決定事項と，仕様の性質が一致しているか．
-4. `quint verify`：すべての性質が成り立つか．
+4. `quint verify`：すべての不変条件が成り立つか．
+   時相論理の性質(Iteration 4から)があれば，`quint verify(時相論理の性質)`として別に検査する．
 5. 状態遷移図：`state-diagram.md`が，仕様から生成した図と一致しているか．
 
 状態遷移図は手で書かない．

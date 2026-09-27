@@ -135,7 +135,7 @@ iterations/iteration-N/
 
 1. `quint typecheck`，`quint test`．
 2. 性質名の照合．
-3. `quint verify`(不変条件と時相論理の性質)．
+3. `quint verify`．不変条件はApalacheで，時相論理の性質はTLC(`--backend=tlc`)で検査する．時相論理の性質がないときは，TLCの検査を表示しない．
 4. 状態遷移図を生成し直し，コミット済みの図との差分がないかを確かめる．
 
 リント(`pnpm lint`)は，textlint，markdownlint，Mermaidの構文の検査，`tsc --noEmit`を実行する．
@@ -151,7 +151,7 @@ Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 | 0 | `mise run verify`，`mise run diagram`，`quint typecheck`，`quint run`，`quint test`，`quint verify`，REPL |
 | 1 | `quint run`の`--max-samples` |
 | 2 | `--invariants`で複数の不変条件をまとめて検査する |
-| 4 | `quint verify`，`--temporal` |
+| 4 | `quint verify --backend=tlc`，`--temporal` |
 | 6 | 定数を変えたモジュールを用意し，`quint verify`の時間を比べる |
 | 7 | `quint run --mbt --out-itf`，`pnpm add -D vitest`，`pnpm vitest` |
 
@@ -173,7 +173,7 @@ Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 | 1 | 2人がそれぞれ在庫を確かめてから引き当てると，売り越す | 在庫の確認と引当を1つの操作にする |
 | 2 | 時間切れで引当を解除したあとに，決済成功の通知が届く | 自動で返金し，注文は時間切れのままにする |
 | 3 | 再試行した依頼が2つとも処理され，二重に課金される．重複した通知で二重に返金する | 決済代行サービスの冪等キーを使う．返金は課金の回数までにする |
-| 4 | 通知が届かず時間切れも起きない注文が，決済待ちのまま残る | 時間切れ監視ジョブが必ず動くことを公平性として仮定し，要求文に書く |
+| 4 | 何も起きずに，注文が決済待ちのまま，または時間切れで課金されたまま止まり続ける | 時間切れ監視ジョブが必ず動くことと，通知が必ず受け取られることを公平性として仮定し，要求文に書く |
 | 5 | 返金と発送が両方起きる．取消依頼中のまま残る | 出荷指示の後は取消依頼にし，いずれ決着させる |
 | 6 | 一部の商品だけ在庫切れのとき，引き当てた商品が戻らない | 注文単位で，すべて引き当てるか，すべて断る |
 
@@ -191,7 +191,9 @@ Iteration 5では，2段階で反例が出る．
 - 動けるアクションがなくなると，`quint run`のトレースはそこで終わる．
   `quint verify`(Apalache)は，この状態をデッドロックとして違反にする．
   検査のスクリプトは，`tools/apalache.json`でデッドロックの検査を切ってApalacheを呼ぶ．
-- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．受講者に見せる反例はApalacheで出す．
+- `quint verify --backend=tlc`は速いが，反例をTLA+の記法で表示する．不変条件の反例はApalacheで出す．
+- Apalacheで時相論理の性質を検査すると，Iteration 4の仕様でも10分以上かかった．時相論理の性質はTLCで検査する．TLCは状態の数が有限でなければ終わらないので，再試行などの回数には上限を設ける．
+- `weakFair(step, vars)`のように`step`全体に公平性を仮定すると，特定のアクションが起きることは保証されない．公平性は，起きてほしいアクションごとに仮定する．
 - `quint run --out-itf`の出力先のディレクトリは，先に作っておく．
 - pnpm 12は，公開から間もない版をロックファイルに入れることを拒む(`minimumReleaseAge`)．依存パッケージの追加には，`mise.toml`で固定したpnpmを使う．
 - pnpm 12は，インストール時スクリプトの可否が決まっていない依存パッケージがあると，インストールを失敗にする．可否は`pnpm-workspace.yaml`の`allowBuilds`に書く．

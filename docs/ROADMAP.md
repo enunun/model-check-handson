@@ -220,9 +220,9 @@ Iterationを始める前に，`docs/concepts/README.md`でそのIterationの概�
 | 仕様の変更 | 活性を時相論理の性質として加え，時間切れ監視ジョブや通知に公平性を仮定する． |
 | 状態遷移図 | 変化なし． |
 | 基礎知識 | 安全性と活性，時相論理，公平性，有界モデル検査と全状態探索． |
-| 学ぶこと | 安全性と活性の違い，`always`と`eventually`，公平性の仮定，`quint verify`による網羅的な検査． |
+| 学ぶこと | 安全性と活性の違い，`always`と`eventually`，公平性の仮定，TLCによる全状態探索と反例の読み方． |
 | 既存テストへの影響 | なし． |
-| 受講者のツール操作 | `quint verify`を初めて使い，`--temporal`で活性を指定する． |
+| 受講者のツール操作 | `quint verify --backend=tlc`で，`--temporal`に活性を指定して検査する． |
 
 ## Iteration 5: キャンセルと出荷
 

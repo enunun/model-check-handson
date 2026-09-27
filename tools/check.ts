@@ -1,6 +1,7 @@
 // 使い方: node tools/check.ts [ディレクトリ...]
 // 仕様のディレクトリ(shop.qntのある場所)を検査する．
 // ディレクトリを指定しなければ，すべてのIterationのexercise/とsolution/を検査する．
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { checkQuintDeps } from "./lib/deps.ts";
@@ -71,6 +72,19 @@ function steps(dir: string): Step[] {
           return null;
         }
         return quint(["verify", "shop.qnt", "--backend=tlc", `--temporal=${temporals.join(",")}`], dir);
+      },
+    },
+    {
+      // 実装(impl/)があれば，仕様のトレースを流すテストを実行する．
+      name: "実装のテスト(Vitest)",
+      run: () => {
+        const impl = path.join(dir, "impl");
+        if (!existsSync(impl)) {
+          return null;
+        }
+        const vitest = path.join(repoRoot, "node_modules/.bin/vitest");
+        const result = spawnSync(vitest, ["run", path.relative(repoRoot, impl)], { cwd: repoRoot, encoding: "utf8" });
+        return result.status === 0 ? [] : [`${result.stdout}${result.stderr}`.trimEnd()];
       },
     },
     {

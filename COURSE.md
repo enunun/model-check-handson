@@ -111,7 +111,7 @@ docs/concepts/README.md        基礎知識の目次(Iterationごとに読むも
 docs/concepts/<topic>.md       形式手法の基礎知識(1ファイル1概念)
 docs/quint/README.md           Quintの構文とコマンドの目次
 docs/quint/iteration-N.md      Iteration Nで初めて使う構文とコマンドの解説
-tools/                         状態遷移図の生成，性質名の照合(TypeScript)
+tools/                         仕様の検査，状態遷移図の生成，トレースの読み込み(TypeScript)
 iterations/iteration-N/
   exercise/                    受講者が作業する場所
     README.md                  このIterationで作るもの，進め方
@@ -140,7 +140,7 @@ iterations/iteration-N/
 4. 状態遷移図を生成し直し，コミット済みの図との差分がないかを確かめる．
 
 リント(`pnpm lint`)は，textlint，markdownlint，Mermaidの構文の検査，`tsc --noEmit`を実行する．
-Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
+ディレクトリに`impl/`があれば(Iteration 7)，実装のテスト(`vitest run`)も実行する．
 
 `exercise/`は，前のIterationの`solution/`と同じ仕様に，新しい要求を加えたものである．
 新しい要求は性質名を参照しないので，`exercise/`も初めから検査を通る．
@@ -154,7 +154,7 @@ Iteration 7では，実装のテスト(`pnpm vitest`)を検査に加える．
 | 2 | `--invariants`で複数の不変条件をまとめて検査する |
 | 4 | `quint verify --backend=tlc`，`--temporal` |
 | 6 | 定数を変えた仕様の写しを作り，`quint verify --backend=tlc`で状態の数と時間を比べる |
-| 7 | `quint run --mbt --out-itf`，`pnpm add -D vitest`，`pnpm vitest` |
+| 7 | `quint run --mbt --out-itf`，`pnpm exec vitest run` |
 
 ## Iteration 0の課題の形
 

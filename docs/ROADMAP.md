@@ -77,34 +77,33 @@ Iteration 1で受講者が出会う反例の例を示す．
 シナリオのテストは通るが，`quint run`は在庫が-1になる実行を見つける．
 
 ```text
-$ quint test --backend=typescript shop_test.qnt
+$ quint test shop_test.qnt
 
   shop_test
     ok sequentialOrdersTest passed 1 test(s)
 
   1 passing (13ms)
 
-$ quint run --backend=typescript shop.qnt --invariant=noOversell \
+$ quint run shop.qnt --invariant=noOversell \
     --max-samples=1000 --max-steps=10 --seed=1
 An example execution:
 
 [State 0] { status: Map("alice" -> Idle, "bob" -> Idle), stock: 1 }
 
-[State 1] { status: Map("alice" -> Idle, "bob" -> Idle), stock: 1 }
+[State 1] { status: Map("alice" -> Idle, "bob" -> Checked), stock: 1 }
 
-[State 2] { status: Map("alice" -> Checked, "bob" -> Idle), stock: 1 }
+[State 2] { status: Map("alice" -> Idle, "bob" -> Checked), stock: 1 }
 
 [State 3] { status: Map("alice" -> Checked, "bob" -> Checked), stock: 1 }
 
-[State 4] { status: Map("alice" -> Checked, "bob" -> Checked), stock: 1 }
+[State 4] { status: Map("alice" -> Checked, "bob" -> Reserved), stock: 0 }
 
-[State 5] { status: Map("alice" -> Reserved, "bob" -> Checked), stock: 0 }
+[State 5] { status: Map("alice" -> Reserved, "bob" -> Reserved), stock: -1 }
 
-[State 6] { status: Map("alice" -> Reserved, "bob" -> Checked), stock: 0 }
-
-[State 7] { status: Map("alice" -> Reserved, "bob" -> Reserved), stock: -1 }
-
-[violation] Found an issue (21ms at 143 traces/second).
+[violation] Found an issue (34ms at 59 traces/second).
+Use --verbosity=3 to show executions.
+Use --seed=0x34 --backend=rust to reproduce.
+error: Invariant violated
 ```
 
 ## Iterationの進め方

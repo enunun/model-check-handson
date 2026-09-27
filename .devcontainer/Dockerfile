@@ -10,8 +10,18 @@ RUN apt-get update \
 	libatomic1 \
 	&& rm -rf /var/lib/apt/lists/*
 
-# ここにプロジェクト固有のシステムパッケージ・ツールチェーンのインストールを追加する
-# (例: ネイティブビルドのリンカ，画像/PDF変換ツール，各言語のランタイムなど)．
+# Quintが初回の実行時にダウンロードする評価器とApalacheを，先にQUINT_HOMEへ置く．
+# 版は，package.jsonで固定したQuintに埋め込まれた版と一致させる(mise run checkが確かめる)．
+ARG QUINT_EVALUATOR_VERSION=v0.6.0
+ARG APALACHE_VERSION=0.56.1
+ENV QUINT_HOME=/opt/quint
+RUN evaluator_dir="$QUINT_HOME/rust-evaluator-$QUINT_EVALUATOR_VERSION" \
+	&& apalache_dir="$QUINT_HOME/apalache-dist-$APALACHE_VERSION" \
+	&& mkdir -p "$evaluator_dir" "$apalache_dir" \
+	&& curl -fsSL "https://github.com/informalsystems/quint/releases/download/evaluator/$QUINT_EVALUATOR_VERSION/quint_evaluator-$(uname -m)-unknown-linux-gnu.tar.gz" \
+	| tar -xz -C "$evaluator_dir" \
+	&& curl -fsSL "https://github.com/apalache-mc/apalache/releases/download/v$APALACHE_VERSION/apalache.tgz" \
+	| tar -xz -C "$apalache_dir"
 
 # ツール(rtk，lefthookなど)はmise.tomlのとおりにイメージへ入れる．
 # 版を固定したい場合は，先に`mise lock`でmise.lockを作り，

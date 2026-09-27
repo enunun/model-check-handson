@@ -1,6 +1,6 @@
-# PROJECT_NAME
+# model-check-handson
 
-TODO: Describe the project overview.
+A Japanese hands-on course on model checking with Quint. Learners turn incomplete requirements for an EC shop into Quint specs, find gaps through counterexamples, decide the behavior, and feed it back into the requirements. `COURSE.md` holds the course plan and conventions; `docs/ROADMAP.md` defines what each Iteration builds.
 
 # RTK (Rust Token Killer)
 
@@ -8,15 +8,16 @@ Prefix every shell command with `rtk`, including each command in an `&&` chain â
 
 ## Working conventions
 
-TODO: Describe the development conventions for this project (branching strategy, commit granularity, whether reviews are required, etc.).
-
 - `git commit` runs the lefthook hooks. If they fail, fix the reported issues. Do not use `--no-verify`.
 
 - Run `mise run check` after making changes.
 
 ## Code map
 
-TODO: Describe the main directory structure and the purpose of each directory.
+- `COURSE.md`: course plan for builders (audience, file conventions, model answers, pitfalls).
+- `docs/`: learner guides (`ROADMAP.md`, `method.md`), formal-methods basics (`concepts/`), Quint syntax notes per Iteration (`quint/`).
+- `iterations/iteration-N/{exercise,solution}/`: `requirements.md`, `shop.qnt`, `shop_test.qnt`, generated `state-diagram.md`, and the Iteration's `README.md` and `docs/`.
+- `tools/`: TypeScript check scripts run by Node directly (`check.ts`, `diagram.ts`, `check-mermaid.ts`).
 
 # Artifact Cleanup
 

@@ -1,0 +1,4 @@
+# 依存パッケージのインストール時スクリプトを実行するかどうか．
+# protobufjsのスクリプトは版の確認だけなので，実行しない．
+allowBuilds:
+  protobufjs: false

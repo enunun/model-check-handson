@@ -14,3 +14,7 @@ pre-commit:
     markdownlint:
       glob: "*.md"
       run: pnpm markdownlint-cli2 {staged_files}
+
+    mermaid:
+      glob: "*.md"
+      run: node tools/check-mermaid.ts {staged_files}
